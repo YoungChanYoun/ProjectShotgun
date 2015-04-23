@@ -1,17 +1,40 @@
+<?php
+   session_start();
+   include_once 'sessionCheck.php';
+?>
 <!DOCTYPE html>
 <HTML>
-<link rel="stylesheet" type="text/css" href="templateStyle.css">
+   <link rel="stylesheet" type="text/css" href="tooltip.css">
+   <link rel="stylesheet" type="text/css" href="stylesheet.css">
+   <link rel="stylesheet" type="text/css" href="loginStyle.css">
+   <link rel="stylesheet" href="font-awesome-4.3.0/css/font-awesome.min.css">
+   <link rel="stylesheet" href="jquery-ui-1.11.4.custom/jquery-ui.css">
+   <script src="tabcontent.js" type="text/javascript"></script>
+   <script src="jquery-1.11.2.js"></script>
+   <script src="jquery_api/jquery.min.js"></script>
+   <script src="jquery-ui-1.11.4.custom/jquery-ui.js"></script>
+   <script src="waypoints.js"></script>
+   <script src="waypoints-sticky.js"></script>
+   <script type="text/javascript">
+       $(document).ready(function () {
+           $('.sticky-navigation').waypoint('sticky');
+       });
+   </script>
 <HEAD>
     <style>
-        div#load_screen{
-            background:#FFF;
+         div#load_screen{
             opacity:0.7;
             position:fixed;
             z-index:10;
-            top: 0px;
+            top: 30%;
             width:100%;
             height:100%;
-        }
+         }
+		 #imageLoad{
+		 display: block;
+		margin-left: auto;
+		margin-right: auto ;
+		 }
     </style>
     <script>
         window.addEventListener("load", function(){
@@ -21,29 +44,145 @@
         });
     </script>
     <TITLE>
-        MegaTest - Online Testing Application
+          INGENIOUS
     </TITLE>
-
-
-
+    <link rel="icon" type="logo/png" href="images/monkeyhead2.png">
 </HEAD>
 
-<BODY style="padding:0px; margin:0px; font-family:Arial, Verdana;background-color:#fff;">
-<div id="load_screen"><img src="images/megamonkeysloading.png" />loading document</div>
+<BODY style="font-family:Calibri;" class="cbp-spmenu-push">
+<div id="load_screen"><img src="images/monkeyload.gif" id="imageLoad"/></div>
 
-<div class="header">
-    <img src="images/header.png" class="header"/>
+<!-- body has the class "cbp-spmenu-push" -->
+<nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
+<span id="name_tab"><?php echo $_SESSION['user_name'][0].' '.$_SESSION['user_name'][1]; ?></span>
+<a href='javascript: history.go(-2)'><i class="fa fa-hand-o-left"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Back</span></a>
+<a href='./'><i class="fa fa-home"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Home</span></a>
+<a href='aboutUs.php'><i class="fa fa-info"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;About Us</span></a>
+<!--<a href='teampage.php'><i class="fa fa-user"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Developers</span></a>-->
+<a href='helpPage.php'><i class="fa fa-question"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Need Help?</span></a>
+<a href='logout.php' class="last"><i class="fa fa-sign-out"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sign Out</span></a>
+</nav>
+<div class="container">
+    <div class="main">
+        <section class="buttonset">
+            <!-- Class "cbp-spmenu-open" gets applied to menu and "cbp-spmenu-push-toleft" or "cbp-spmenu-push-toright" to the body -->
+           <a href="#" id="showRightPush" class="button tooltip-bottom"><!--<img src="images/menu.png" class="menuImage" />--></a>
+        </section>
+    </div>
 </div>
 
-<div id='cssmenu'>
-    <ul>
-        <li><a href='#'><span>About</span></a></li>
-        <li><a href='#'><span>Team</span></a></li>
-        <li class='last'><a href='#'><span>Contact</span></a></li>
-    </ul>
-</div>
+<!-- START of JavaScript to make Hidden Side Menu Work -->
+<script>
+    /*!
+     * classie v1.0.1
+     * class helper functions
+     * from bonzo https://github.com/ded/bonzo
+     * MIT license
+     *
+     * classie.has( elem, 'my-class' ) -> true/false
+     * classie.add( elem, 'my-new-class' )
+     * classie.remove( elem, 'my-unwanted-class' )
+     * classie.toggle( elem, 'my-class' )
+     */
 
-<div id='slides'>
+    /*jshint browser: true, strict: true, undef: true, unused: true */
+    /*global define: false, module: false */
+
+    ( function( window ) {
+
+        'use strict';
+
+// class helper functions from bonzo https://github.com/ded/bonzo
+
+        function classReg( className ) {
+            return new RegExp("(^|\\s+)" + className + "(\\s+|$)");
+        }
+
+// classList support for class management
+// altho to be fair, the api sucks because it won't accept multiple classes at once
+        var hasClass, addClass, removeClass;
+
+        if ( 'classList' in document.documentElement ) {
+            hasClass = function( elem, c ) {
+                return elem.classList.contains( c );
+            };
+            addClass = function( elem, c ) {
+                elem.classList.add( c );
+            };
+            removeClass = function( elem, c ) {
+                elem.classList.remove( c );
+            };
+        }
+        else {
+            hasClass = function( elem, c ) {
+                return classReg( c ).test( elem.className );
+            };
+            addClass = function( elem, c ) {
+                if ( !hasClass( elem, c ) ) {
+                    elem.className = elem.className + ' ' + c;
+                }
+            };
+            removeClass = function( elem, c ) {
+                elem.className = elem.className.replace( classReg( c ), ' ' );
+            };
+        }
+
+        function toggleClass( elem, c ) {
+            var fn = hasClass( elem, c ) ? removeClass : addClass;
+            fn( elem, c );
+        }
+
+        var classie = {
+            // full names
+            hasClass: hasClass,
+            addClass: addClass,
+            removeClass: removeClass,
+            toggleClass: toggleClass,
+            // short names
+            has: hasClass,
+            add: addClass,
+            remove: removeClass,
+            toggle: toggleClass
+        };
+
+// transport
+        if ( typeof define === 'function' && define.amd ) {
+            // AMD
+            define( classie );
+        } else if ( typeof exports === 'object' ) {
+            // CommonJS
+            module.exports = classie;
+        } else {
+            // browser global
+            window.classie = classie;
+        }
+
+    })( window );
+
+
+    var menuRight = document.getElementById( 'cbp-spmenu-s2' ),
+        showRightPush = document.getElementById( 'showRightPush' ),
+        body = document.body;
+
+    showRightPush.onclick = function() {
+        classie.toggle( this, 'active' );
+        classie.toggle( body, 'cbp-spmenu-push-toleft' );
+        classie.toggle( menuRight, 'cbp-spmenu-open' );
+    };
+</script>
+<!-- END of JavaScript to make Hidden Side Menu Work -->
+
+<div class="container">
+        <div class="header">
+           <a href="./" id="logo"><img src="images/logo.png" alt="Ingenious logo" style="width:250px;"></a>
+        </div>
+        <div class="sticky-navigation">
+        </div>
+        <div class="contents">
+		
+   <!-- START SLIDER -->
+
+   <div id='slides'>
     <!-- use jssor.slider.min.js for release -->
     <!-- jssor.slider.min.js = (jssor.js + jssor.slider.js) -->
     <script type="text/javascript" src="Jssor.Slider.FullPack/js/jssor.js"></script>
@@ -65,11 +204,11 @@
 
             var options = {
                 $FillMode: 2,                                       //[Optional] The way to fill image in slide, 0 stretch, 1 contain (keep aspect ratio and put all inside slide), 2 cover (keep aspect ratio and cover whole slide), 4 actual size, 5 contain for large image, actual size for small image, default value is 0
-                $AutoPlay: false,                                    //[Optional] Whether to auto play, to enable slideshow, this option must be set to true, default value is false
+                $AutoPlay: true,                                    //[Optional] Whether to auto play, to enable slideshow, this option must be set to true, default value is false
                 $AutoPlayInterval: 4000,                            //[Optional] Interval (in milliseconds) to go for next slide since the previous stopped if the slider is auto playing, default value is 3000
                 $PauseOnHover: 1,                                   //[Optional] Whether to pause when mouse over if a slider is auto playing, 0 no pause, 1 pause for desktop, 2 pause for touch device, 3 pause for desktop and touch device, 4 freeze for desktop, 8 freeze for touch device, 12 freeze for desktop and touch device, default value is 1
 
-                $ArrowKeyNavigation: true,   			            //[Optional] Allows keyboard (arrow key) navigation or not, default value is false
+                $ArrowKeyNavigation: false,   			            //[Optional] Allows keyboard (arrow key) navigation or not, default value is false
                 $SlideEasing: $JssorEasing$.$EaseOutQuint,          //[Optional] Specifies easing for right to left animation, default value is $JssorEasing$.$EaseOutQuad
                 $SlideDuration: 800,                                //[Optional] Specifies default duration (swipe) for slide in milliseconds, default value is 500
                 $MinDragOffsetToSlide: 20,                          //[Optional] Minimum drag offset to trigger slide , default value is 20
@@ -131,40 +270,28 @@
     <!-- Jssor Slider Begin -->
     <!-- You can move inline styles to css file or css block. -->
     <div id="slider1_container" style="position: relative; margin: 0 auto;
-        top: 0px; left: 0px; width: 1200px; height: 500px; overflow: hidden;">
-        <!-- Loading Screen -->
-        <div u="loading" style="position: absolute; top: 0px; left: 0px;">
-            <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block;
-                top: 0px; left: 0px; width: 100%; height: 100%;">
-            </div>
-            <div style="position: absolute; display: block; background: url(Jssor.Slider.FullPack/img/loading.gif) no-repeat center center;
-                top: 0px; left: 0px; width: 100%; height: 100%;">
-            </div>
-        </div>
+        top: 10px; left: 0px; width: 1200px; height: 600px; overflow: hidden;">
+         <!-- Loading Screen -->
+         <!--<div u="loading" style="position: absolute; top: 0px; left: 0px;">
+            <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+            <div style="position: absolute; display: block; background: url(images/monkeyload.gif) no-repeat center center; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+         </div>-->
+         <!-- Loading Screen -->
         <!-- Slides Container -->
-        <div u="slides" style="cursor: move; position: absolute; left: 0px; top: 0px; width: 1300px;
-            height: 500px; overflow: hidden;">
-            <div>
-                <img u="image" src="images/Bernike Finished.png" />
-            </div>
-            <div>
-                <img u="image" src="images/Glenn Finished.png" />
-            </div>
-            <div>
-                <img u="image" src="Jssor.Slider.FullPack/img/1920/blue.jpg" />
-                <img src="Jssor.Slider.FullPack/img/new-site/c-phone.png" style="position: absolute; width: 445px; height: 300px; top: 100px; left: 600px; background-color: transparent;" />
-                <div style="position: absolute; width: 480px; height: 120px; top: 30px; left: 30px; padding: 5px;
-                    text-align: left; line-height: 60px; text-transform: uppercase; font-size: 50px;
-                        color: #FFFFFF;">Touch Swipe Slider
-                </div>
-                <div style="position: absolute; width: 480px; height: 120px; top: 300px; left: 30px; padding: 5px;
-                    text-align: left; line-height: 36px; font-size: 30px;
-                        color: #FFFFFF;">
-                        Build your slider with anything, includes image, content, text, html, photo, picture
-                </div>
-            </div>
+        <div u="slides" style="cursor: move; position: absolute; left: 0px; top: 0px; width: 1200px; height: 600px;
+             overflow: hidden;">
+            <!--<div><img u="image" src="images/academic/slide1.png" /></div>
+            <div><img u="image" src="images/academic/slide2.png" /></div>
+            <div><img u="image" src="images/academic/slide3.png" /></div>
+            <div><img u="image" src="images/academic/slide4.png" /></div>-->
+           <div> <img u="image" src="images/developer/jon.png" /> </div>
+           <div> <img u="image" src="images/developer/ethan.png" /> </div>
+           <div> <img u="image" src="images/developer/bernike.png" /> </div>
+           <div> <img u="image" src="images/developer/young.png" /> </div>
+           <div> <img u="image" src="images/developer/jordan.png" /> </div>
+           <div> <img u="image" src="images/developer/glenn.png" /> </div>
         </div>
-                
+
         <!-- Bullet Navigator Skin Begin -->
         <style>
             /* jssor slider bullet navigator skin 21 css */
@@ -206,9 +333,9 @@
             */
             .jssora15l, .jssora15r, .jssora15ldn, .jssora15rdn
             {
-            	position: absolute;
-            	cursor: pointer;
-            	display: block;
+                position: absolute;
+                cursor: pointer;
+                display: block;
                 background: url(Jssor.Slider.FullPack/img/a15.png) center center no-repeat;
                 overflow: hidden;
             }
@@ -234,10 +361,11 @@
     </script>
     <!-- Jssor Slider End -->
 </div>
-
-<div class="footer"></br>
-    <img src="images/footerblue.png" class="footerblue"/>
-    <ft>&copy; MegaMonkeys, Inc. - Pensacola Christian College 2015</ft>
+   <!-- END SLIDER -->   
 </div>
+<div class="footer">
+	&copy; MegaMonkeys, Inc.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="images/monkeyhead2.png" class="monkeyheadfooter"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pensacola Christian College 2015
+</div>
+
 </BODY>
 </HTML>

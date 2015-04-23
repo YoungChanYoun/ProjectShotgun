@@ -6,15 +6,23 @@
 	include_once 'db_connection.php';
 
    //Modifing Test
-   if( is_numeric(@$_POST['save'] ) ) {
-      mysqli_query($connection, "CALL delete_test(". $_POST['save'] .");");
-   }
-   else if( is_numeric(@$_POST['publish'] ) ) {
-      mysqli_query($connection, "CALL delete_test(". $_POST['publish'] .");");
+   echo $_POST['button_type'];
+   echo $_POST['button_id'];
+   if( isset($_POST['button_type']) ) {
+	   if( $_POST['button_type'] == 'save' ) {
+		  mysqli_query($connection, "CALL delete_test(". $_POST['button_id'] .");");
+		  echo '1';
+	   }
+	   else if( $_POST['button_type'] == 'publish' ) {
+		  mysqli_query($connection, "CALL delete_test(". $_POST['button_id'] .");");
+		  echo '2';
+	   }
+      $_SESSION['section_id'] = $_POST['sectionNo'];
    }
    //Creating New Test - Set Flag to Which Class Test is Made
    else {
       $_SESSION['section_id'] = $_POST['sectionNo'];
+	  echo '3';
    }
 
 	
@@ -27,7 +35,7 @@
    // Get test information, and format the timeLimit, startDate, and endDate to be compatible with the DB
 	$sectionId   = $_POST['sectionNo'];//$_POST['sectionNo'];//$row[0];
 	$testName    = addslashes(strlen($_POST['testName']) != 0 ? $_POST['testName'] : "Test ".date("F j, Y, g:i a"));
-   $published   = (isset($_POST['publish'])) ? "1" : "0";
+   $published   = ($_POST['button_type'] == 'publish') ? "1" : "0";
 	$hourLimit   = strlen($_POST['hours'])   != 0 ? $_POST['hours']   : "1";
 	$minuteLimit = strlen($_POST['minutes']) != 0 ? $_POST['minutes'] : "0";
    $timeLimit   = ($hourLimit < 10 ? "0" : "") . $hourLimit . ":" . ($minuteLimit < 10 ? "0" : "") . $minuteLimit . ":00" ;
@@ -168,6 +176,49 @@
          mysqli_query($connection, $sqlComm);
          echo $sqlComm;
       }
+      // matching
+      elseif( isset($_POST['Q'.$queNum.'M1']) )
+      {
+         $baseQ  = $queNum;
+         $optNum = 1;
+         
+         $sqlComm =
+            "insert into question (test_id, ques_no, ques_type, ques_text, points)".
+            " values ($testID, $queNum, 'Matching', '$queText', $quePoints)";
+         mysqli_query($connection, $sqlComm);
+         echo '<br /><br />'.$sqlComm;
+         
+         $quesID = mysqli_insert_id($connection);
+         
+         while(isset($_POST['Q'.$queNum.'M'.$optNum])) {
+            $optIsCorrect = ($_POST['Q'.$queNum.'MA'] == $optNum) ? "1" : "0";
+            $sqlComm = "insert into answer (ques_id, ans_text, correct)".
+              " values (".$quesID.", '".$_POST['Q'.$queNum.'M'.$optNum]."', ".$optIsCorrect.")";
+            mysqli_query($connection, $sqlComm);
+            echo '<br /><br />'.$sqlComm;
+            $optNum++;
+         }
+         $optNum -= 1;
+         
+         for($i=1; $i<$optNum; $i++) {
+            ++$queNum;
+            $qText = addslashes(isset($_POST['Q'.$queNum.'T']) ? $_POST['Q'.$queNum.'T'] : "");
+            $sqlComm =
+               "insert into question (test_id, ques_no, ques_type, ques_text, points)".
+               " values ($testID, $queNum, 'Matching', '$qText', $quePoints)";
+            mysqli_query($connection, $sqlComm);
+            echo '<br /><br />'.$sqlComm;
+            $quesID = mysqli_insert_id($connection);
+            
+            for($x=1; $x<=$optNum; $x++) {
+               $optIsCorrect = ($_POST['Q'.$queNum.'MA'] == $x) ? "1" : "0";
+               $sqlComm = "insert into answer (ques_id, ans_text, correct)".
+                 " values (".$quesID.", '".$_POST['Q'.$baseQ.'M'.$x]."', ".$optIsCorrect.")";
+               mysqli_query($connection, $sqlComm);
+               //echo '<br /><br />'.$sqlComm;
+            }
+         }
+      }
       // If Essay
       else
       {
@@ -189,5 +240,5 @@
     
    mysqli_close($connection);
 
-   //header("Location: ./teacherHomePage.php");
+   header("Location: ./teacherHomePage.php");
 ?>

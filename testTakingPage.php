@@ -7,20 +7,76 @@
 <!DOCTYPE html>
 <HTML>
 <link rel="stylesheet" type="text/css" href="testTakingPage.css">
+<link rel="stylesheet" type="text/css" href="stylesheet.css">
+<link rel="stylesheet" href="./jquery_api/jquery-ui.css">
 <script src="tabcontent.js" type="text/javascript"></script>
 <script src="jquery-1.11.2.js"></script>
+<script src="./jquery_api/jquery-1.10.2.js"></script>
+<script src="./jquery_api/jquery.min.js"></script>
+<script src="./jquery_api/jquery-ui.js"></script>
+    
 <HEAD>
     <style>
-        div#load_screen{
-            background:#FFF;
+         div#load_screen{
             opacity:0.7;
             position:fixed;
             z-index:10;
-            top: 0px;
+            top: 30%;
             width:100%;
             height:100%;
-        }
+         }
+		 #imageLoad{
+		 display: block;
+		margin-left: auto;
+		margin-right: auto ;
+		 }
+         .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+            float: none;
+         }
+         .ui-dialog .ui-dialog-buttonpane {
+            text-align: center;
+         }
     </style>
+    <?php
+        $testID = isset($_POST['takeTestButton']) ? $_POST['takeTestButton'] : '-1';
+        $studentID = $_SESSION['user_id'];
+        $sessionName = $_SESSION['user_name'];
+        $studentName = $sessionName[0] . ' ' . $sessionName[1];
+        
+        include 'db_connection.php';
+        
+        //Gets DB Current Time
+        $sql_now = "SELECT NOW()";
+        $sql_now_result = mysqli_query($connection, $sql_now);
+        $row = mysqli_fetch_row($sql_now_result);
+        $current_datetime = date_create($row[0]);
+        
+        // Delete old test if this test is a retake
+        $existingTest = mysqli_query($connection, 'select test_id from student_test where test_id = '.$testID.' and student_id = '.$studentID);
+        if($testID != '-1' && mysqli_num_rows($existingTest) == 0)
+        {
+            $sqlComm = "insert into student_test (student_id, test_id, date_time) values (".$studentID.", ".$testID.", NOW())";
+            mysqli_query($connection, $sqlComm);
+        }
+
+        // Get the test information
+        $sqlComm = 'select course_no, section_no, test_name, time_limit, date_time, pledge
+                    from test join section using (section_id) left outer join student_test using (test_id) where test_id = '.$testID.' and student_id = '.$studentID;
+        $testInfo = mysqli_query($connection, $sqlComm);
+        $infoRow = mysqli_fetch_row($testInfo);
+        
+        // Add time limit to start time, to determine if there is still time left in the test.
+        $timeStarted = date_create($infoRow[4]);
+        $timeLimit = date_create($infoRow[3]);
+        $hoursLeft = date_format($timeLimit, "G"). " hours";
+        $minutesLeft = date_format($timeLimit, "i"). " minutes";
+        $studentEndTime = date_add(date_create($infoRow[4]), date_interval_create_from_date_string($hoursLeft));
+        $studentEndTime = date_add($studentEndTime, date_interval_create_from_date_string($minutesLeft));
+        $pledge = $infoRow[5];
+        
+        $timeLeft = date_diff($current_datetime, $studentEndTime);
+        $strTimeLeft = date_interval_format($timeLeft, "%H:%I:%S:%r");
+    ?>
     <script>
         window.addEventListener("load", function(){
 
@@ -29,75 +85,194 @@
         });
     </script>
     <script type="text/javascript">
+	
         function submitTest()
         {
             document.forms['testForm'].submit();
         }
+		
+		<!-- INSERTED BY G3 FOR POPUPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->		
+	$(function() {
+        // JB added this submitDialog variable. See the line below.
+		var submitDialog = $( "#dialog-confirm-submit" ).dialog({
+                                autoOpen: false,
+                                resizable: false,
+                                height: 500,
+                                width:  800,
+                                modal: true,
+                                show: {
+                                    effect: "blind",
+                                    duration: 500
+                                },
+                                hide: {
+                                   effect: "drop",
+                                   direction: "down",
+                                   duration: 500
+                                },
+                                buttons: {
+                                   "Submit for Grading": function() {
+                                        if("<?php echo $studentName; ?>" === document.getElementById('signature').value) {
+                                            $( this ).dialog( "close" );
+                                            submitTest();
+                                            //document.form.submit();
+                                        }
+                                        else {
+                                            document.getElementById('errorMsg').innerHTML = "Name does not match!";
+                                        }
+                                    },
+                                   "I Cheated!": function() {
+                                        document.getElementById('signature').value = "";
+                                        $( this ).dialog( "close" );
+                                        submitTest();
+                                    },
+                                    Cancel: function() {
+                                        $( this ).dialog( "close" );
+                                    }
+                                }
+                            });
+                           //$(".ui-dialog-titlebar-close").hide();
+    // JB added this so pledge signature will get sent with the rest of the test when they click submit.
+    submitDialog.parent().appendTo($("#testForm"));
+
+    $( "#submit" ).click(function() {
+      $( "#dialog-confirm-submit" ).dialog( "open" );
+    });
+  });  
+<!-- INSERTED BY G3 FOR POPUPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+
+		
+        
+        // Countdown timer
+        var interval;
+        
+        var duration = "<?php echo $strTimeLeft; ?>";
+        var time = duration.split(":");
+        var hours = parseInt(time[0]);
+        var minutes = parseInt(time[1]);
+        var seconds = parseInt(time[2]);
+        
+        if(time[3] == "-")
+            hours = minutes = seconds = 0;
+        
+		function timer()
+		{
+            seconds -= 1;
+            if(seconds < 0)
+            {
+                if(minutes > 0)
+                {
+                    minutes -= 1;
+                    seconds = 59;
+                }
+                else if(hours > 0)
+                {
+                    hours -= 1;
+                    minutes = 59;
+                    seconds = 59;
+                }
+                else
+                {
+                    seconds = 0;
+                    // Display pop-up here
+                   // alert("time up");
+                   
+        // JB added this timeUpDialog variable. See the line below.
+	$timeUpDialog = $( "#dialog-confirm-submit" ).dialog({
+                        autoOpen: true,
+                        resizable: false,
+                        height: 500,
+                        width:  800,
+                        modal: true,
+                        show: {
+                            effect: "blind",
+                            duration: 1000
+                        },
+                        hide: {
+                            effect: "explode",
+                            duration: 1000
+                        },
+                        buttons: {
+                            "Submit": function() {
+                                if("<?php echo $studentName; ?>" === document.getElementById('signature').value) {
+                                    $( this ).dialog( "close" );
+                                    submitTest();
+                                    //document.form.submit();
+                                }
+                                else {
+                                    document.getElementById('errorMsg').innerHTML = "Name does not match!";
+                                }
+                            },
+                            "Submit Without Signing": function() {
+                                document.getElementById('signature').value = "";
+                                $( this ).dialog( "close" );
+                                submitTest();
+                            }
+                        }
+                    });
+    // JB added this so pledge signature will get sent with the rest of the test when they click submit.
+    timeUpDialog.parent().appendTo($("#testForm"));
+    
+
+                    clearInterval(interval);
+                }
+            }
+            document.getElementById("timer").innerHTML = (hours < 10 ? "0" : "") + hours + ":" +
+                                                     (minutes < 10 ? "0" : "") + minutes + ":" +
+                                                     (seconds < 10 ? "0" : "") + seconds;
+		}
     </script>
     <TITLE>
-        MegaTest - Online Testing Application
+       INGENIOUS
     </TITLE>
-    <?php
-        $testID = isset($_POST['takeTestButton']) ? $_POST['takeTestButton'] : '-1';
-        $studentID = $_SESSION['user_id'];
-        $startTime = date("Y-m-d H:i:s");
-		
-        include 'db_connection.php';
-        if($testID != '-1')
-        {
-            $sqlComm = "insert into student_test (student_id, test_id, date_time)
-                        values (".$studentID.", ".$testID.", '".$startTime."')";
-            mysqli_query($connection, $sqlComm);
-        }
-        else
-            echo "Test ID = -1";
-    ?>
+
 </HEAD>
 
-<BODY style="background:#F6F9FC; font-family:Arial;">
-<div id="load_screen"><img src="images/megamonkeysloading.png" />loading document</div>
-<div class="header">
-    <img src="images/header.png" class="header"/>
-    <img src="images/logo.png" class="testLogo"/>
-    <form action="logout.php"><input type="submit" value="Sign out" class="logout-button"></form>
-</div>
+<BODY style="font-family:Calibri;" class="cbp-spmenu-push" onload="interval = setInterval('timer()', 1000)">
+<div id="load_screen"><img src="images/monkeyload.gif" id="imageLoad"/></div>  
+	
+	<div class="header">
+		<img src="images/logo.png" alt="Ingenious logo" style="width:250px;">
+      <div id="name_tag"> <?php echo $_SESSION['user_name'][0].' '.$_SESSION['user_name'][1]; ?> </div>
+      <!--<span id="menu"><img src="images/menu.png" alt="Ingenious logo" style="width:70px;"> </span>-->
+	</div>
+		
+		<div class="container">
+        
+        <div class="sticky-navigation">
+        </div>
+        <div class="contents">
 
-<div id='cssmenu'>
-    <ul>
-        <li class='loginPage.html'><a href='#'><span>Home</span></a></li>
-        <li><a href='#'><span>About</span></a></li>
-        <li><a href='#'><span>Team</span></a></li>
-        <li class='last'><a href='#'><span>Contact</span></a></li>
-    </ul>
-</div>
 
-<?php
-    $sqlComm = 'select course_no, section_no, test_name, time_limit from test join section using (section_id) where test_id = '.$testID;
-    $testInfo = mysqli_query($connection, $sqlComm);
-    $infoRow = mysqli_fetch_row($testInfo);
-?>
-
-<div class="content"><button type="submit" class="submit-button" onclick="submitTest()">Submit</button>
+<div class="content">
+	<button type="submit" id="submit" name="submit" class="submit-button" value="submit">Submit</button>
     <div id="testInformation">
-    <table>
-        <tr>
-            <td>Class:</td>
-            <td><?php echo $infoRow[0].' - '.$infoRow[1]; ?></td>
-        </tr>
-        <tr>
-            <td>Test:</td>
-            <td><?php echo $infoRow[2]; ?></td>
-        </tr>
-        <tr>
-            <td>Time limit:</td>
-            <td><?php echo $infoRow[3]; ?></td>
-        </tr>
-    </table>
+		<table class="informationTable">
+			<tr>
+				<td>Class:</td>
+				<td><?php echo $infoRow[0].' - '.$infoRow[1]; ?></td>
+			</tr>
+			<tr>
+				<td>Time:</td>
+				<td id="timer" name="timer">-- : -- : --</td>
+			</tr>
+		</table>
     </div>
+    
+    <span id='testTitle'><?php echo $infoRow[2]; ?></span><br />
 
-    <span id='classTitle'></span><br />
     <div class="testQuestions">
-        <form name="testForm" action="submit_test.php" method="post">
+        <form name="testForm" id ="testForm" action="submit_test.php" method="post">
+           <div id="dialog-confirm-submit" title="Pledge" style="background-color: #f3f3f3; ">
+                <p>
+                    <div style="font-size: 20px;">
+                        <?php echo $pledge; ?><br />
+                        If you can do so honestly, sign your name exactly as it appears:
+                    </div>
+                    <input type="text" autofocus style="display:none;"/>
+                    <input type="textbox" id="signature" name="signature" placeholder="<?php echo $studentName; ?>" onclick="this.select()" style="width:350px;"><br />
+                    <span id="errorMsg"></span>
+                </p>
+            </div>
             <?php
                 echo '<input type="text" name="testID" value="'.$testID.'" style="display:none;"/>';
                 if($testID != '-1')
@@ -108,7 +283,7 @@
                     $numEntries = mysqli_num_rows($result);
                     
                     echo '<input type="text" name="numEntries" value="'.$numEntries.'" style="display:none" />';
-                    echo '<table>';
+                    echo '<table id="testTable">';
                     
                     $qNum = 1;
                     for($x = 1; $x <= $numEntries; $x++)
@@ -117,7 +292,7 @@
                         
                         if($row[2] === 'True/False')
                         {
-                            echo '<tr><td id="trueFalse">';
+                            echo '<tr><td id="trueFalse" class="questionTD">';
                             echo '<table>';
                             echo '<tr>';
                             echo    '<td width="50px">'.$qNum.'.<input type="text" name="Q'.$x.'ID" value="'.$row[0].',True/False" style="display:none;"/></td>';
@@ -137,7 +312,7 @@
                             $sqlComm = 'select ans_text from answer where ques_id = '.$row[0];
                             $answers = mysqli_query($connection, $sqlComm);
                             
-                            echo '<tr><td id="multipleChoice">';
+                            echo '<tr><td id="multipleChoice" class="questionTD">';
                             echo '<table>';
                             echo '<tr>';
                             echo    '<td width="50px">'.$qNum.'.<input type="text" name="Q'.$x.'ID" value="'.$row[0].',Multiple Choice" style="display:none;"/></td>';
@@ -165,7 +340,7 @@
                             $sqlComm = 'select ans_text from answer where ques_id = '.$row[0];
                             $answers = mysqli_query($connection, $sqlComm);
                             
-                            echo '<tr><td id="manyChoice">';
+                            echo '<tr><td id="manyChoice" class="questionTD">';
                             echo '<table>';
                             echo '<tr>';
                             echo    '<td width="50px">'.$qNum.'.<input type="text" name="Q'.$x.'ID" value="'.$row[0].',Many Choice" style="display:none;"/></td>';
@@ -190,14 +365,14 @@
                         }
                         else if($row[2] === 'Short Answer')
                         {
-                            echo '<tr><td id="shortAnswer">';
+                            echo '<tr><td id="shortAnswer" class="questionTD">';
                             echo '<table>';
                             echo '<tr>';
                             echo    '<td width="50px">'.$qNum.'.<input type="text" name="Q'.$x.'ID" value="'.$row[0].',Short Answer" style="display:none;"/></td>';
                             echo    '<td width="850"><span id="theQuestion">'.$row[3].'</span> ('.$row[4].')</td>';
                             echo '</tr><tr>';
                             echo    '<td></td>';
-                            echo    '<td><input type="text" name="Q'.$x.'A" value=""></td>';
+                            echo    '<td><input type="text" name="Q'.$x.'A" value="" style="width:80%;"></td>';
                             echo '</tr>';
                             echo '</table>';
                             echo '</tr></td>';
@@ -206,7 +381,7 @@
                         }
                         else if($row[2] === 'Essay')
                         {
-                            echo '<tr><td id="essay">';
+                            echo '<tr><td id="essay" class="questionTD">';
                             echo '<table>';
                             echo '<tr>';
                             echo    '<td width="50px">'.$qNum.'.<input type="text" name="Q'.$x.'ID" value="'.$row[0].',Essay" style="display:none;"/></td>';
@@ -214,16 +389,55 @@
                             echo '</tr>';
                             echo '<tr>';
                             echo 	'<td></td>';
-                            echo 	'<td><input type="text" name="Q'.$x.'A" value="" class="essayText"></td>';
+                            echo 	'<td><textarea name="Q'.$x.'A" class="essayText"></textarea></td>';
                             echo '</tr>';
                             echo '</table>';
                             echo '</td></tr>';
                             
                             $qNum++;
                         }
+                        else if($row[2] === "Matching")
+                        {
+                           $sqlComm = 'select ans_text from answer where ques_id = '.$row[0];
+                           $answers = mysqli_query($connection, $sqlComm);
+                           $numAns = mysqli_num_rows($answers);
+
+                           $ansArray = array();
+                           for($index = 0; $index < $numAns; $index++)
+                           {
+                              $ansRow = mysqli_fetch_row($answers);
+                              $ansArray[$index] = $ansRow[0];
+                           }
+
+                           echo '<tr><td id="matching" class="questionTD">';
+                           echo '<table>';
+                           for($i = 1; $i <= $numAns; $i++)
+                           {
+                              if($i != 1)
+                              {
+                                 $row = mysqli_fetch_row($result);
+                              }
+                              echo '<tr>';
+                              echo    '<td width="50px">'.$qNum.'.<input type="text" name="Q'.$x.'ID" value="'.$row[0].',Matching" style="display:none;"/></td>';
+                              echo    '<td width="400"><span id="theQuestion">'.$row[3].'</span> ('.$row[4].')</td>';
+                              echo    '<td width="400"><select name="Q'.$x.'A">';
+                              for($theAns = 0; $theAns < sizeof($ansArray); $theAns++)
+                              {
+                                 echo '<option value="'.$ansArray[$theAns].'">'.$ansArray[$theAns].'</option>';
+                              }
+                              echo    '</select></td>';
+                              echo '</tr>';
+
+                              $x++;
+                              $qNum++;
+                           }
+                           $x--;
+                           echo '</table>';
+                           echo '</td></tr>';
+                        }
                         else if($row[2] === "Instruction")
                         {
-                            echo '<tr><td id="instruction">';
+                            echo '<tr><td id="instruction" class="questionTD">';
                             echo '<table>';
                             echo '<tr>';
                             echo    '<td width="50px"><input type="text" name="Q'.$x.'ID" value="'.$row[0].',Instruction" style="display:none;"/></td>';
@@ -237,7 +451,6 @@
                             echo '<tr><td>A question didn\'t display correctly.</td></tr>';
                         }
                     }
-                    mysqli_close($connection);
                 }
                 else
                 {
@@ -249,10 +462,34 @@
    </div>
 </div>
 
-
-<div class="footer"></br>
-   <img src="images/footerblue.png" class="footerblue"/>
-   <ft>&copy; MegaMonkeys, Inc. - Pensacola Christian College 2015</ft>
+</div>
+      <div class="footer">
+         &copy; MegaMonkeys, Inc.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="images/monkeyhead2.png" class="monkeyheadfooter"/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pensacola Christian College 2015
+      </div>
 </div>
 </BODY>
 </HTML>
+
+<?php
+    $result = mysqli_query($connection, 'SELECT section_id FROM test WHERE test_id = '.$testID);
+    $row = mysqli_fetch_row($result);
+    $_SESSION['section_id'] = $row[0];
+
+    mysqli_close($connection);
+?>
+
+<script type="text/javascript">
+	//When Page Loads
+   $(function() {
+      page_resize();
+   });
+   //When Page Size Changes
+   $( window ).resize(function() {
+      page_resize();
+   });
+   function page_resize() {
+      //alert($(window).height() + " " + $(document).height());
+      $('.contents').css("min-height", $(window).height() - 185 );
+   }
+
+</script>
