@@ -108,15 +108,31 @@
       return mysqli_fetch_row($sql_result);
    }
 
-   function time_duration_check($start, $end, $duration, $started, $connection)
+   function time_duration_check($start, $end, $duration, $started, $now)
    {
-      $sql_now = "SELECT NOW()";
-      $now = mysqli_fetch_row(mysqli_query($connection, $sql_now));
+      echo $start."<br/>";
+      echo $end."<br/>";
+      echo $duration."<br/>";
+      echo $started."||".substr($started,11)."<br/>";
+      $round_up = 0;
+      $new_time_se = (int)substr($started,17,2) + (int)substr($duration,6,2);
+      if($new_time_se >= 60) {$new_time_se-=60;$round_up+=1;} else {$round_up=0;}
+      if($new_time_se<10) {$new_time_se= "0".$new_time_se;};
+      $new_time_mi = (int)substr($started,14,2) + (int)substr($duration,3,2) + $round_up;
+      if($new_time_mi >= 60) {$new_time_mi-=60;$round_up+=1;} else {$round_up=0;}
+      if($new_time_mi<10) {$new_time_mi= "0".$new_time_mi;};
+      $new_time_hr = (int)substr($started,11,2) + (int)substr($duration,0,2) + $round_up;
+      if($new_time_hr >= 60) {$new_time_hr-=60;$round_up+=1;} else {$round_up=0;}
+      if($new_time_hr<10) {$new_time_hr= "0".$new_time_hr;};
+      $new_date_day = (int)substr($started,8,2) + $round_up;
+      if($new_date_day<10) {$new_date_day= "0".$new_date_day;};
 
-      if($now > $end)
-         return false;
+      $new_date = substr($started,0,8).$new_date_day." ".$new_time_hr.":".$new_time_mi.":".$new_time_se;
 
-      return false;
+      echo $new_date."<br/>";
+      echo $now."<br/>";
+
+      return ($new_date>$now)?false:true;
    }
 
    function get_test($test_id, $student_id, $connection) {
@@ -144,18 +160,19 @@
 
          $student_test_pledge = $result_s_row[0];
 
+         //$test_progress = time_duration_check($result_t_row[0], $result_t_row[1], $result_t_row[2], $result_s_row[4], $now[0]);
       }
 
       $test_progress = $result_t_row[1]>$now[0]? true:false;
 
       if($student_test_avail && $test_progress && $student_test_pledge == null)
-         echo "<B1>Student is currently taking the test, please wait ...</B1>";
+         echo "<B1>Student is currently taking the test. Please wait. . .</B1>";
       elseif(!$student_test_avail && !$test_progress)
-         echo "<B1>Student did not took the test</B1>";
+         echo "<B1>Student did not take the test in the specified time range.</B1>";
       elseif(!$student_test_avail && $test_progress)
-         echo "<B1>Student have not started the test</B1>";
+         echo "<B1>Student has not started the test yet.</B1>";
       elseif($student_test_avail) {
-         if($student_test_pledge==0) echo "<B1>Student did not signed the pledge !!</B1>";
+         if($student_test_pledge==0) echo "<B1>Student did not sign the pledge.</B1>";
 
          $sql_command = "SELECT test_id, q.ques_id, ques_type, ques_text, points, ans_id, ans_text, correct\n"
             . "FROM question q\n"

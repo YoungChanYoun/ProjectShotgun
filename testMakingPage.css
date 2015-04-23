@@ -220,7 +220,7 @@ position: relative;
 position: fixed;
    min-width: 400px;
    padding-left: 0px;
-   padding-top: 30px;
+   padding-top: 20px;
    padding-bottom: 30px;
 }
 
@@ -409,4 +409,7 @@ input[type=text]:focus, textarea:focus {
 
 .required_field {
    font-size:18px;
+}
+.point_box {
+   text-align: center;
 }

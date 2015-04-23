@@ -339,6 +339,7 @@
                //alert("saved");
                $(".loader").fadeOut(10);
                $("#test_table").fadeIn("slow");
+               document.getElementById("t_save").style.backgroundImage = "url('images/options/save.png')";
                document.getElementById("t_save").disabled = true;
             }
             if (textStatus == "error") {

@@ -55,7 +55,7 @@
 <!-- body has the class "cbp-spmenu-push" -->
 <nav class="cbp-spmenu cbp-spmenu-vertical cbp-spmenu-right" id="cbp-spmenu-s2">
 <span id="name_tab"><?php echo $_SESSION['user_name'][0].' '.$_SESSION['user_name'][1]; ?></span>
-<a href='javascript: history.go(-1)'><i class="fa fa-hand-o-left"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Back</span></a>
+<a href='javascript: history.go(-2)'><i class="fa fa-hand-o-left"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Back</span></a>
 <a href='./'><i class="fa fa-home"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Home</span></a>
 <a href='aboutUs.php'><i class="fa fa-info"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;About Us</span></a>
 <!--<a href='teampage.php'><i class="fa fa-user"></i><span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Developers</span></a>-->
@@ -66,7 +66,7 @@
     <div class="main">
         <section class="buttonset">
             <!-- Class "cbp-spmenu-open" gets applied to menu and "cbp-spmenu-push-toleft" or "cbp-spmenu-push-toright" to the body -->
-           <a href="#" id="showRightPush" class="button tooltip-bottom" data-tooltip='Menu'><!--<img src="images/menu.png" class="menuImage" />--></a>
+           <a href="#" id="showRightPush" class="button tooltip-bottom"><!--<img src="images/menu.png" class="menuImage" />--></a>
         </section>
     </div>
 </div>
@@ -270,35 +270,26 @@
     <!-- Jssor Slider Begin -->
     <!-- You can move inline styles to css file or css block. -->
     <div id="slider1_container" style="position: relative; margin: 0 auto;
-        top: 0px; left: 0px; width: 1200px; height: 600px; overflow: hidden;">
-        <!-- Loading Screen -->
-        <div u="loading" style="position: absolute; top: 0px; left: 0px;">
-            <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block;
-                top: 0px; left: 0px; width: 100%; height: 100%;">
-            </div>
-            <div style="position: absolute; display: block; background: url(images/monkeyload.gif) no-repeat center center;
-                top: 0px; left: 0px; width: 100%; height: 100%;">
-            </div>
-        </div>
+        top: 10px; left: 0px; width: 1200px; height: 600px; overflow: hidden;">
+         <!-- Loading Screen -->
+         <!--<div u="loading" style="position: absolute; top: 0px; left: 0px;">
+            <div style="filter: alpha(opacity=70); opacity: 0.7; position: absolute; display: block; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+            <div style="position: absolute; display: block; background: url(images/monkeyload.gif) no-repeat center center; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+         </div>-->
+         <!-- Loading Screen -->
         <!-- Slides Container -->
-        <div u="slides" style="cursor: move; position: absolute; left: 0px; top: 0px; width: 1300px; height: 500px;
+        <div u="slides" style="cursor: move; position: absolute; left: 0px; top: 0px; width: 1200px; height: 600px;
              overflow: hidden;">
-            <div>
-                <img u="image" src="images/academic/slide1.png" />
-                <!-- Image from: www.huffingtonpost.com/2013/09/20/paying-for-college-prep_n_3963035.html -->
-            </div>
-            <div>
-                <img u="image" src="images/academic/slide2.png" />
-                <!-- Image from: http://www.supportingeducation.org/2013/06/17/high-speed-internet-for-schools/ -->
-            </div>
-            <div>
-                <img u="image" src="images/academic/slide3.png" />
-				<!-- Image from: eluniversitario.net -->
-            </div>
-            <div>
-                <img u="image" src="images/academic/slide4.png" />
-                <!-- Image from: https://www.thebureauinvestigates.com/2010/09/20/top-10-teacher-salaries/ -->
-            </div>
+            <!--<div><img u="image" src="images/academic/slide1.png" /></div>
+            <div><img u="image" src="images/academic/slide2.png" /></div>
+            <div><img u="image" src="images/academic/slide3.png" /></div>
+            <div><img u="image" src="images/academic/slide4.png" /></div>-->
+           <div> <img u="image" src="images/developer/jon.png" /> </div>
+           <div> <img u="image" src="images/developer/ethan.png" /> </div>
+           <div> <img u="image" src="images/developer/bernike.png" /> </div>
+           <div> <img u="image" src="images/developer/young.png" /> </div>
+           <div> <img u="image" src="images/developer/jordan.png" /> </div>
+           <div> <img u="image" src="images/developer/glenn.png" /> </div>
         </div>
 
         <!-- Bullet Navigator Skin Begin -->

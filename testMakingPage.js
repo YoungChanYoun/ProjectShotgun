@@ -3,51 +3,51 @@
 //Question Form
 var form_array =
    [
-      'Instruction',
+      'Instructions',
       'True/False Question',
       'Multiple Choice Question',
       'Many Choice Question',
       'Short Answer Question',
       'Essay Question',
-      'Matching'
+      'Matching Question'
    ];
 var form_text_array =
 	[
-   //Index:0 - Instruction
+   //Index:0 - Instructions
       '<button class="bin_button" type="button" onmouseover="recy_onHover(this);" onmouseout="recy_offHover(this);" onclick="removeQ(this);">'+
       '<input type="image" width="100%" height="100%" src="./images/recycle_close.jpeg">' +
       '</button><br>' +
-      '<textarea required class="required_field" rows="2" placeholder="Type Instruction" maxlength="200"></textarea>' +
+      '<textarea required class="required_field" rows="2" placeholder="Instruction" maxlength="200"></textarea>' +
       '<input type="hidden">',
 
    //Index:1 - True/False Question
-		'<input type="text" class="required_field" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
+		'<input type="text" class="required_field point_box" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
 		'<textarea required class="required_field" rows="3" placeholder="True/False Question" maxlength="200"></textarea>' +
       '<input type="radio" checked style="margin-left: 23%;"> True' +
 		'<input type="radio"         style="margin-left: 23%;"> False',
 
    //Index:2 - Multiple Choice Question
-      '<input type="text" class="required_field" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
+      '<input type="text" class="required_field point_box" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
 		'<textarea required class="required_field" rows="3" placeholder="Multiple Choice Question" maxlength="200"></textarea>',
 
    //Index:3 - Many Choices
-      '<input type="text" class="required_field" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
+      '<input type="text" class="required_field point_box" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
 		'<textarea required class="required_field" rows="3" placeholder="Many Choice Question" maxlength="200"></textarea>',
 
    //Index:4 - Short Answer Question
-      '<input type="text" class="required_field" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
+      '<input type="text" class="required_field point_box" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp>' +
 		'<textarea required class="required_field" rows="3" placeholder="Short Answer Question" maxlength="200"></textarea>' +
       'Answer: <input required class="required_field" type="text"  maxlength="50" size="55">',
 
    //Index:5 - Essay
-      '<input type="text" class="required_field" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="5"><qp style="float:right;"> Point-&nbsp;</qp>' +
+      '<input type="text" class="required_field point_box" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="5"><qp style="float:right;"> Point-&nbsp;</qp>' +
 		'<textarea required class="required_field" rows="4" placeholder="Essay Question" maxlength="250"></textarea><br>',
 
    //Index:6 - Matching
-      '<input type="text" class="required_field" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp><br />'
+      '<input type="text" class="required_field point_box" maxlength="3" size="3" style="float: right;" onkeydown="return isNumberKey(event)" onkeyup="isNum(this)" onblur="numCheck(this)" value="2"><qp style="float:right;"> Point-&nbsp;</qp><br />'
 	];
    var default_pledge =
-      'This test is completely my own work.' +
+      'This test is completely my own work. ' +
       'I have not had anyone or anything aid me in answering the questions, ' +
       'including Internet search engines, such as Google, Bing, ect. ' +
       'I have not received, nor will I give any information regarding this test.';
@@ -363,13 +363,13 @@ var matching_field =
          else if( q_type == 5) {
 
          }
-         //Instruction
+         //Instructions
          else if( q_type == 0) {
             current.children('input').eq(0).attr("value", "0");
          }
          //MATCHING !!!!
          else if( q_type == 6 ) {
-            //alert("Matching Q");
+            //alert("Matching Question Q");
             var q_curr = current.children('table').eq(0).children('tbody').eq(0).children('tr').eq(0).children('td').eq(0);
             current.children('input').eq(0).attr('name', "Q" + (id_count + 1) + "P");
             //alert(q_curr.html());
@@ -418,7 +418,7 @@ var matching_field =
       current = current.parentNode;
       $(current).remove();
 
-      //Question Check - if 0, remove Matching Form
+      //Question Check - if 0, remove Matching Question Form
       var child_count = $(parent).children('div').length; //alert(child_count);
       if(child_count == 0)
          removeQ(parent.parentNode.parentNode.parentNode);
